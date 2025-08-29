@@ -1,42 +1,41 @@
 import requests
 import random
+from pathlib import Path
 
-def get_rand_comic():
-    url_for_rand = "https://xkcd.com/info.0.json"
+BASE_URL = "https://xkcd.com"
+SUFFIX = "info.0.json"
 
-    response = requests.get(url_for_rand)
+
+def get_rand_comic_num():
+    response = requests.get(f"{BASE_URL}/{SUFFIX}")
     response.raise_for_status()
+    return random.randint(1, response.json()['num'])
 
-    num = response.json()['num']
-    fin_num = random.randint(1, num)
 
-    return fin_num
+def fetch_comic(num):
+    response = requests.get(f"{BASE_URL}/{num}/{SUFFIX}")
+    response.raise_for_status()
+    return response.json()
 
-def save_comics(filename, image_url):
-    image_response = requests.get(image_url)
-    image_response.raise_for_status()
 
-    with open (filename, 'wb') as f:
-        f.write(image_response.content)
-
-def get_urls(data):
-    image_url = data['img']
-    comm = data['alt']
-    title = data['title']
-    return image_url, comm, title
-
-def main():
-    url = f"https://xkcd.com/{get_rand_comic()}/info.0.json"
-    
+def download_image(url, filename):
     response = requests.get(url)
     response.raise_for_status()
-    data = response.json()
+    filename.write_bytes(response.content)
 
-    image_url, comm, title = get_urls(data)
-    filename = f"{title}.png"
-    save_comics(filename, image_url)
 
-    return comm, filename
+def save_rand_comic():
+    num = get_rand_comic_num()
+    info = fetch_comic(num)
+    path = Path(f'{info['title']}.png')
+    download_image(info['img'], path)
+    return info['alt'], path
+
+
+def main():
+    caption, path = save_rand_comic()
+    print(f'Скачан {path.name}. Комментарий: {caption}')
+
 
 if __name__ == '__main__':
     main()

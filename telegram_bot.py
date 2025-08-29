@@ -1,26 +1,32 @@
-import dotenv
 import os
+import sys
+from contextlib import suppress
+from pathlib import Path
+
+from dotenv import load_dotenv
 from telegram import Bot
-import asyncio
-from main import main
 
-async def send_photo(bot, chat_id):
-    comic_caption, filename = main()
+from main import save_random_comic
 
-    with open(filename, 'rb') as f:
-        await bot.send_photo(chat_id=chat_id, photo=f, caption=comic_caption)
 
-    os.remove(filename)
-        
+def send_photo(bot, chat_id, image_path: Path, caption: str):
+    try:
+        with image_path.open("rb") as f:
+            bot.send_photo(chat_id=chat_id, photo=f, caption=caption)
+    finally:
+        with suppress(FileNotFoundError):
+            image_path.unlink()
 
-async def run_bot():
-    dotenv.load_dotenv('.env')
-    tg_bot_token = os.getenv('TG_BOT_TOKEN')
-    tg_chat_id = os.getenv('TG_CHAT_ID')
-    bot = Bot(token=tg_bot_token)
-    chat_id = tg_chat_id
 
-    await send_photo(bot, chat_id)
+def main():
+    load_dotenv()
+    bot = Bot(token=os.environ["TG_BOT_TOKEN"])
+    caption, image_path = save_random_comic()
+    send_photo(bot, os.environ["TG_CHAT_ID"], image_path, caption)
 
-if __name__ == '__main__':
-    asyncio.run(run_bot())
+
+if __name__ == "__main__":
+    try:
+        main()
+    except KeyboardInterrupt:
+        sys.exit()
