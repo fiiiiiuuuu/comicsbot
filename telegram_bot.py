@@ -6,7 +6,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 from telegram import Bot
 
-from main import save_random_comic
+from main import save_rand_comic
 
 
 def send_photo(bot, chat_id, image_path: Path, caption: str):
@@ -21,7 +21,7 @@ def send_photo(bot, chat_id, image_path: Path, caption: str):
 def main():
     load_dotenv()
     bot = Bot(token=os.environ["TG_BOT_TOKEN"])
-    caption, image_path = save_random_comic()
+    caption, image_path = save_rand_comic()
     send_photo(bot, os.environ["TG_CHAT_ID"], image_path, caption)
 
 

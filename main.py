@@ -27,7 +27,7 @@ def download_image(url, filename):
 def save_rand_comic():
     num = get_rand_comic_num()
     info = fetch_comic(num)
-    path = Path(f'{info['title']}.png')
+    path = Path(f"{info['title']}.png")
     download_image(info['img'], path)
     return info['alt'], path
 
