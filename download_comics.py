@@ -26,16 +26,11 @@ def download_image(url, filename):
 
 def save_rand_comic():
     num = get_rand_comic_num()
-    info = fetch_comic(num)
-    path = Path(f"{info['title']}.png")
-    download_image(info['img'], path)
-    return info['alt'], path
-
-
-def main():
-    caption, path = save_rand_comic()
-    print(f'Скачан {path.name}. Комментарий: {caption}')
+    comics_num = fetch_comic(num)
+    path = Path(f"{comics_num['title']}.png")
+    download_image(comics_num['img'], path)
+    return comics_num['alt'], path
 
 
 if __name__ == '__main__':
-    main()
+    save_rand_comic()
